@@ -43,15 +43,10 @@ class PythonEncryptor:
         for i, byte in enumerate(data):
             xor_data.append(byte ^ key[i % len(key)])
         
-        # Layer 2: Add random padding
-        padding_len = random.randint(100, 500)
-        padding = os.urandom(padding_len)
-        result = bytes(xor_data) + padding
+        # Layer 2: Base64 encode
+        encoded = base64.b64encode(bytes(xor_data))
         
-        # Layer 3: Base64 encode
-        encoded = base64.b64encode(result)
-        
-        return encoded, key, padding_len
+        return encoded, key
     
     def generate_junk_code(self, density=5):
         """Generate realistic junk code to confuse decompilers"""
@@ -118,16 +113,13 @@ class PythonEncryptor:
         # LAYER 2: Heavy zlib compression
         compressed = zlib.compress(marshaled, 9)
         
-        # LAYER 3: String encryption with XOR + padding
-        encrypted_data, xor_key, padding_len = self.encrypt_string(compressed)
+        # LAYER 3: String encryption with XOR + Base64
+        encrypted_data, xor_key = self.encrypt_string(compressed)
         
-        # LAYER 4: Base64 encoding
-        b64_data = base64.b64encode(encrypted_data)
+        # LAYER 4: Hex encoding  
+        hex_data = encrypted_data.hex()
         
-        # LAYER 5: Hex encoding
-        hex_data = b64_data.hex()
-        
-        # LAYER 6: Reverse and split
+        # LAYER 5: Reverse and split
         reversed_data = hex_data[::-1]
         
         # LAYER 7: Create decompiler-resistant wrapper
@@ -145,12 +137,11 @@ class PythonEncryptor:
         # Create anti-decompiling code
         header = """#THIS ENCODE POWERED BY @M0bsy
 # Advanced Cython-Like Obfuscation
-# 7-Layer Security: Marshal + Zlib + XOR + Base64 + Hex + Reverse + Flatten
+# 6-Layer Security: Marshal + Zlib + XOR + Base64 + Hex + Reverse
 # Anti-Decompiling Protection Enabled"""
         
         # Key data in hex form to avoid detection
         key_hex = xor_key.hex()
-        padding_hex = str(padding_len)
         
         # Split reversed data into multiple parts for extra obfuscation
         part_size = len(reversed_data) // 4
@@ -166,16 +157,16 @@ class PythonEncryptor:
 import marshal, base64, zlib
 {self.generate_junk_code(3)}
 def {v1}():
-    {v2} = '{parts[0]}' + '{parts[1]}' + '{parts[2]}' + '{parts[3]}'
-    {v3} = {v2}[::-1]
-    {v4} = bytes.fromhex({v3})
-    {v5} = base64.b64decode({v4})
-    {v6} = bytes.fromhex('{key_hex}')
-    {v7} = {int(padding_hex)}
-    {v8} = bytearray()
-    for {v9}, {v10} in enumerate({v5}[:-{v7}]):
-        {v8}.append({v10} ^ {v6}[{v9} % len({v6})])
-    return marshal.loads(zlib.decompress(bytes({v8})))
+    {v2}='{parts[0]}'+'{parts[1]}'+'{parts[2]}'+'{parts[3]}'
+    {v3}={v2}[::-1]
+    {v4}=bytes.fromhex({v3})
+    {v5}=base64.b64decode({v4})
+    {v6}=bytes.fromhex('{key_hex}')
+    {v7}=bytearray()
+    for {v8},{v9} in enumerate({v5}):
+        {v7}.append({v9}^{v6}[{v8}%len({v6})])
+    {v8}=zlib.decompress(bytes({v7}))
+    return marshal.loads({v8})
 exec({v1}())
 {self.generate_junk_code(5)}
 """
