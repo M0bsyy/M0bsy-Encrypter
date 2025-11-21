@@ -141,24 +141,24 @@ _Protect your Python code from casual copying!_
                 ratio = encrypted_size / original_size
                 
                 # Send the encrypted file back
-                caption = f"""✅ *Encryption Complete!*
+                caption = f"""✅ <b>Encryption Complete!</b>
 
-📁 Original: `{document.file_name}`
-📁 Encrypted: `{output_filename}`
+📁 Original: <code>{document.file_name}</code>
+📁 Encrypted: <code>{output_filename}</code>
 
-📊 *Stats:*
+📊 <b>Stats:</b>
 • Original size: {original_size:,} bytes
 • Encrypted size: {encrypted_size:,} bytes
 • Obfuscation ratio: {ratio:.2f}x
 
-🔐 *Security:*
+🔐 <b>Security:</b>
 • 5 layers of encryption applied
 • XOR + Marshal + Zlib + Base64 + Base85 + Hex
 • Random variable names
 • Junk code injection
 • Extremely difficult to reverse engineer
 
-_Run with: python {output_filename}_
+<i>Run with: python {output_filename}</i>
 
 🔥 Powered by M0bsy
 """
@@ -169,7 +169,7 @@ _Run with: python {output_filename}_
                         document=encrypted_file,
                         filename=output_filename,
                         caption=caption,
-                        parse_mode='Markdown'
+                        parse_mode='HTML'
                     )
                 
                 # Delete processing message
@@ -180,8 +180,8 @@ _Run with: python {output_filename}_
         except Exception as e:
             logger.error(f"Error processing file: {e}")
             await update.message.reply_text(
-                f"❌ An error occurred while encrypting your file:\n`{str(e)}`",
-                parse_mode='Markdown'
+                f"❌ An error occurred while encrypting your file:\n<code>{str(e)}</code>",
+                parse_mode='HTML'
             )
     
     async def handle_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -210,8 +210,8 @@ _Run with: python {output_filename}_
         # Start the bot
         logger.info("🤖 Bot started successfully! Waiting for messages...")
         print("╔═══════════════════════════════════════════════════════╗")
-        print("║     Python Encryptor Bot - Running Successfully                 ║")
-        print("║              Powered by M0bsy                                   ║")
+        print("║     Python Encryptor Bot - Running Successfully      ║")
+        print("║              Powered by M0bsy                         ║")
         print("╚═══════════════════════════════════════════════════════╝")
         print("\n✅ Bot is online and ready to encrypt Python files!")
         print("📱 Send Python files to your bot on Telegram")
