@@ -4,7 +4,6 @@ Python File Encryptor - Military-Grade AES-256 Encryption
 Powered by M0bsy
 """
 
-import marshal
 import base64
 import os
 import sys
@@ -79,28 +78,25 @@ class PythonEncryptor:
             return False
     
     def _apply_encryption(self, source_code):
-        compiled = compile(source_code, '<string>', 'exec')
-        marshaled = marshal.dumps(compiled)
-        
-        # LAYER 1: Zlib compression (level 9)
-        compressed = zlib.compress(marshaled, 9)
+        # LAYER 1: Compress source code
+        compressed = zlib.compress(source_code.encode('utf-8'), 9)
         
         # LAYER 2: Fernet AES-256 encryption
         key = Fernet.generate_key()
         cipher = Fernet(key)
         encrypted = cipher.encrypt(compressed)
         
-        # LAYER 3: Single base64 encoding (for readability)
+        # LAYER 3: Base64 encoding
         data_b64 = base64.b64encode(encrypted).decode()
         
-        # LAYER 4: Checksum verification
+        # LAYER 4: Checksum
         checksum = hashlib.sha256(data_b64.encode()).hexdigest()
         
-        # LAYER 5: Split into 15 parts
-        chunk = len(data_b64) // 15
+        # LAYER 5: Split into 20 parts
+        chunk = len(data_b64) // 20
         parts = []
-        for i in range(15):
-            if i == 14:
+        for i in range(20):
+            if i == 19:
                 parts.append(data_b64[i*chunk:])
             else:
                 parts.append(data_b64[i*chunk:(i+1)*chunk])
@@ -108,13 +104,13 @@ class PythonEncryptor:
         v = {i: self.generate_random_var() for i in range(60)}
         
         header = """#@M0bsy ENCRYPTOR - MILITARY-GRADE AES-256
-#ZLIB COMPRESSION + FERNET ENCRYPTION
-#UNBREAKABLE SECURITY"""
+#ZLIB + FERNET + ANTI-ANALYSIS
+#UNBREAKABLE"""
         
         parts_str = "','".join(parts)
         
         decoder = f"""{header}
-import marshal,base64,hashlib,zlib;from cryptography.fernet import Fernet
+import base64,hashlib,zlib;from cryptography.fernet import Fernet
 {self.generate_junk_code(6)}
 def {v[0]}():
  {v[1]}=['{parts_str}']
@@ -126,9 +122,8 @@ def {v[0]}():
  {v[6]}=base64.b64decode({v[2]})
  {v[7]}=Fernet({v[5]}.encode())
  {v[8]}={v[7]}.decrypt({v[6]})
- {v[9]}=zlib.decompress({v[8]})
- {v[10]}=marshal.loads({v[9]})
- return {v[10]}
+ {v[9]}=zlib.decompress({v[8]}).decode('utf-8')
+ return {v[9]}
 {self.generate_junk_code(8)}
 exec({v[0]}())
 {self.generate_junk_code(6)}
@@ -147,7 +142,7 @@ def main():
     print_banner()
     if len(sys.argv) < 2:
         print("Usage: python encryptor.py <file.py> [output.py]")
-        print("\nFeatures: ✓ AES-256 ✓ Zlib ✓ Checksum ✓ 15-Part Split ✓ Junk Code")
+        print("\nFeatures: ✓ AES-256 ✓ Zlib ✓ Checksum ✓ 20-Part Split ✓ Junk Code")
         return
     
     encryptor = PythonEncryptor()
