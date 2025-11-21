@@ -58,8 +58,8 @@ The easiest way to encrypt files on the go! Just send Python files to your Teleg
    python bot.py
 
 # COMMANDS TO RUN IN TERMUX
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME
-cd YOUR_REPO_NAME
+git clone https://github.com/M0bsyy/M0bsy-Encrypter.git
+cd M0bsy-Encrypter
 
 # Install dependencies
 bash install.sh
