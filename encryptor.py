@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
 Python File Encryptor - Military-Grade AES-256 Encryption
-Ultra-Strong Obfuscation + Multi-Layer Encoding
 Powered by M0bsy
 """
 
@@ -18,7 +17,7 @@ from cryptography.fernet import Fernet
 
 class PythonEncryptor:
     def __init__(self):
-        self.encryption_type = "AES-256 (Multi-Layer)"
+        self.encryption_type = "AES-256 (Military-Grade)"
         self.python_keywords = set(keyword.kwlist)
         
     def generate_random_var(self, length=None):
@@ -62,7 +61,7 @@ class PythonEncryptor:
             
             print(f"[+] Reading file: {input_file}")
             print(f"[+] Original size: {len(source_code)} bytes")
-            print(f"[+] Applying Military-Grade Multi-Layer Encryption...")
+            print(f"[+] Applying Military-Grade Encryption...")
             
             encrypted_code = self._apply_encryption(source_code)
             
@@ -73,7 +72,7 @@ class PythonEncryptor:
             print(f"[+] Encrypted file saved as: {output_file}")
             print(f"[+] Encrypted size: {len(encrypted_code)} bytes")
             print(f"[+] Obfuscation ratio: {len(encrypted_code)/len(source_code):.2f}x")
-            print(f"[+] Security: MILITARY-GRADE (AES-256 + Multi-Layer + Checksum)")
+            print(f"[+] Security: MILITARY-GRADE (AES-256 + Zlib)")
             return True
         except Exception as e:
             print(f"Error: {e}")
@@ -83,7 +82,7 @@ class PythonEncryptor:
         compiled = compile(source_code, '<string>', 'exec')
         marshaled = marshal.dumps(compiled)
         
-        # LAYER 1: Zlib compression
+        # LAYER 1: Zlib compression (level 9)
         compressed = zlib.compress(marshaled, 9)
         
         # LAYER 2: Fernet AES-256 encryption
@@ -91,29 +90,26 @@ class PythonEncryptor:
         cipher = Fernet(key)
         encrypted = cipher.encrypt(compressed)
         
-        # LAYER 3: Multi-stage encoding
-        stage1 = base64.b64encode(encrypted).decode()
-        stage2 = base64.b64encode(stage1.encode()).decode()
-        stage3 = base64.b64encode(stage2.encode()).decode()
+        # LAYER 3: Single base64 encoding (for readability)
+        data_b64 = base64.b64encode(encrypted).decode()
         
-        # LAYER 4: Checksum
-        checksum = hashlib.sha256(stage3.encode()).hexdigest()
+        # LAYER 4: Checksum verification
+        checksum = hashlib.sha256(data_b64.encode()).hexdigest()
         
-        # LAYER 5: Split into 20 parts
-        chunk = len(stage3) // 20
+        # LAYER 5: Split into 15 parts
+        chunk = len(data_b64) // 15
         parts = []
-        for i in range(20):
-            if i == 19:
-                parts.append(stage3[i*chunk:])
+        for i in range(15):
+            if i == 14:
+                parts.append(data_b64[i*chunk:])
             else:
-                parts.append(stage3[i*chunk:(i+1)*chunk])
+                parts.append(data_b64[i*chunk:(i+1)*chunk])
         
         v = {i: self.generate_random_var() for i in range(60)}
         
-        header = """#@M0bsy ENCRYPTOR
-#AES-256 + ZLIB + TRIPLE ENCODING
-#MILITARY-GRADE ENCRYPTION
-#UNBREAKABLE"""
+        header = """#@M0bsy ENCRYPTOR - MILITARY-GRADE AES-256
+#ZLIB COMPRESSION + FERNET ENCRYPTION
+#UNBREAKABLE SECURITY"""
         
         parts_str = "','".join(parts)
         
@@ -125,18 +121,14 @@ def {v[0]}():
  {v[2]}=''.join({v[1]})
  {v[3]}='{checksum}'
  {v[4]}=hashlib.sha256({v[2]}.encode()).hexdigest()
- if {v[3]}!={v[4]}:raise ValueError('Integrity failed')
- {v[5]}='{key.decode()}'.encode()
+ if {v[3]}!={v[4]}:raise RuntimeError('Integrity check failed')
+ {v[5]}='{key.decode()}'
  {v[6]}=base64.b64decode({v[2]})
- {v[7]}={v[6]}.decode('utf-8')
- {v[8]}=base64.b64decode({v[7]})
- {v[9]}={v[8]}.decode('utf-8')
- {v[10]}=base64.b64decode({v[9]})
- {v[11]}=Fernet({v[5]})
- {v[12]}={v[11]}.decrypt({v[10]})
- {v[13]}=zlib.decompress({v[12]})
- {v[14]}=marshal.loads({v[13]})
- return {v[14]}
+ {v[7]}=Fernet({v[5]}.encode())
+ {v[8]}={v[7]}.decrypt({v[6]})
+ {v[9]}=zlib.decompress({v[8]})
+ {v[10]}=marshal.loads({v[9]})
+ return {v[10]}
 {self.generate_junk_code(8)}
 exec({v[0]}())
 {self.generate_junk_code(6)}
@@ -147,7 +139,7 @@ def print_banner():
     print("""
 ╔══════════════════════════════════════════════════════════╗
 ║    Python Encryptor - Military-Grade AES-256           ║
-║    Multi-Layer + Zlib + Triple Encoding + Checksum     ║
+║         Zlib + Fernet + Anti-Analysis                  ║
 ╚══════════════════════════════════════════════════════════╝
     """)
 
@@ -155,13 +147,13 @@ def main():
     print_banner()
     if len(sys.argv) < 2:
         print("Usage: python encryptor.py <file.py> [output.py]")
-        print("\nFeatures: ✓ AES-256 ✓ Zlib ✓ Triple Encoding ✓ Checksum ✓ 20-Part Split")
+        print("\nFeatures: ✓ AES-256 ✓ Zlib ✓ Checksum ✓ 15-Part Split ✓ Junk Code")
         return
     
     encryptor = PythonEncryptor()
     success = encryptor.encrypt_file(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else None)
     if success:
-        print("\n✓ Encryption successful! Unbreakable file created!")
+        print("\n✓ Encryption successful! Unbreakable!")
     else:
         sys.exit(1)
 
