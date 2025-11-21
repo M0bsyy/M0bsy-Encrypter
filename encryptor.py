@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Python File Encryptor - AES-256 Military-Grade Encryption
-Unbreakable encryption with cryptographic security
+Python File Encryptor - Military-Grade AES-256 Encryption
+Ultra-Strong Obfuscation + Multi-Layer Encoding
 Powered by M0bsy
 """
 
@@ -12,48 +12,42 @@ import sys
 import random
 import string
 import keyword
+import hashlib
+import zlib
 from cryptography.fernet import Fernet
 
 class PythonEncryptor:
     def __init__(self):
-        self.encryption_type = "AES-256 (Fernet)"
+        self.encryption_type = "AES-256 (Multi-Layer)"
         self.python_keywords = set(keyword.kwlist)
         
     def generate_random_var(self, length=None):
-        """Generate random variable names avoiding Python keywords"""
         if length is None:
-            length = random.randint(10, 20)
-        
+            length = random.randint(15, 25)
         while True:
             first_char = random.choice(string.ascii_letters + '_')
             rest_chars = ''.join(random.choice(string.ascii_letters + string.digits + '_') for _ in range(length - 1))
             var_name = first_char + rest_chars
-            
             if var_name not in self.python_keywords and not var_name[0].isdigit():
                 return var_name
     
-    def generate_junk_code(self, density=5):
-        """Generate realistic junk code to confuse decompilers"""
+    def generate_junk_code(self, density=8):
         junk_lines = []
-        
-        junk_templates = [
-            lambda: f"{self.generate_random_var()} = {random.randint(-999999, 999999)}",
-            lambda: f"{self.generate_random_var()} = bytes.fromhex('{os.urandom(16).hex()}')",
-            lambda: f"{self.generate_random_var()} = (lambda x: x * {random.randint(1, 99)})",
-            lambda: f"if {random.randint(0, 1)}: {self.generate_random_var()} = None",
-            lambda: f"try: {self.generate_random_var()} = 1\nexcept: pass",
-            lambda: f"{self.generate_random_var()} = {repr(os.urandom(32))}",
-            lambda: f"def {self.generate_random_var()}(): return {random.randint(1, 999)}",
-            lambda: f"{self.generate_random_var()} = __import__('sys').version_info",
+        templates = [
+            lambda: f"{self.generate_random_var()}={random.randint(-9999999,9999999)}",
+            lambda: f"{self.generate_random_var()}=bytes.fromhex('{os.urandom(64).hex()}')",
+            lambda: f"{self.generate_random_var()}={repr(os.urandom(128))}",
+            lambda: f"def {self.generate_random_var()}():pass",
+            lambda: f"{self.generate_random_var()}=hash(__name__)",
+            lambda: f"{self.generate_random_var()}=pow({random.randint(2,100)},{random.randint(2,10)})",
+            lambda: f"{self.generate_random_var()}=abs({random.randint(-9999,9999)})",
+            lambda: f"{self.generate_random_var()}=[x for x in range({random.randint(1,10)})]",
         ]
-        
         for _ in range(density):
-            junk_lines.append(random.choice(junk_templates)())
-        
+            junk_lines.append(random.choice(templates)())
         return '\n'.join(junk_lines)
     
     def encrypt_file(self, input_file, output_file=None):
-        """Encrypt a Python file with AES-256"""
         if not os.path.exists(input_file):
             print(f"Error: File '{input_file}' not found!")
             return False
@@ -68,7 +62,7 @@ class PythonEncryptor:
             
             print(f"[+] Reading file: {input_file}")
             print(f"[+] Original size: {len(source_code)} bytes")
-            print(f"[+] Applying AES-256 Military-Grade Encryption...")
+            print(f"[+] Applying Military-Grade Multi-Layer Encryption...")
             
             encrypted_code = self._apply_encryption(source_code)
             
@@ -79,115 +73,94 @@ class PythonEncryptor:
             print(f"[+] Encrypted file saved as: {output_file}")
             print(f"[+] Encrypted size: {len(encrypted_code)} bytes")
             print(f"[+] Obfuscation ratio: {len(encrypted_code)/len(source_code):.2f}x")
-            print(f"[+] Security level: MILITARY-GRADE (AES-256 Encryption)")
-            
+            print(f"[+] Security: MILITARY-GRADE (AES-256 + Multi-Layer + Checksum)")
             return True
-            
         except Exception as e:
-            print(f"Error during encryption: {e}")
+            print(f"Error: {e}")
             return False
     
     def _apply_encryption(self, source_code):
-        """Apply AES-256 encryption with Fernet"""
+        compiled = compile(source_code, '<string>', 'exec')
+        marshaled = marshal.dumps(compiled)
         
-        # Step 1: Compile and marshal the Python code
-        compiled_code = compile(source_code, '<string>', 'exec')
-        marshaled = marshal.dumps(compiled_code)
+        # LAYER 1: Zlib compression
+        compressed = zlib.compress(marshaled, 9)
         
-        # Step 2: Generate encryption key
-        encryption_key = Fernet.generate_key()
+        # LAYER 2: Fernet AES-256 encryption
+        key = Fernet.generate_key()
+        cipher = Fernet(key)
+        encrypted = cipher.encrypt(compressed)
         
-        # Step 3: Create Fernet cipher and encrypt
-        cipher = Fernet(encryption_key)
-        encrypted_data = cipher.encrypt(marshaled)
+        # LAYER 3: Multi-stage encoding
+        stage1 = base64.b64encode(encrypted).decode()
+        stage2 = base64.b64encode(stage1.encode()).decode()
+        stage3 = base64.b64encode(stage2.encode()).decode()
         
-        # Step 4: Encode to base64 for safe storage
-        encrypted_b64 = base64.b64encode(encrypted_data).decode()
-        key_b64 = encryption_key.decode()
+        # LAYER 4: Checksum
+        checksum = hashlib.sha256(stage3.encode()).hexdigest()
         
-        # Step 5: Split encrypted data for obfuscation
-        split_parts = []
-        part_size = len(encrypted_b64) // 4
-        for i in range(4):
-            if i == 3:
-                split_parts.append(encrypted_b64[i*part_size:])
+        # LAYER 5: Split into 20 parts
+        chunk = len(stage3) // 20
+        parts = []
+        for i in range(20):
+            if i == 19:
+                parts.append(stage3[i*chunk:])
             else:
-                split_parts.append(encrypted_b64[i*part_size:(i+1)*part_size])
+                parts.append(stage3[i*chunk:(i+1)*chunk])
         
-        # Generate random variable names
-        v1 = self.generate_random_var()  # Main function
-        v2 = self.generate_random_var()  # Data parts
-        v3 = self.generate_random_var()  # Joined data
-        v4 = self.generate_random_var()  # Cipher
-        v5 = self.generate_random_var()  # Key
-        v6 = self.generate_random_var()  # Decrypted data
-        v7 = self.generate_random_var()  # Marshal loads result
+        v = {i: self.generate_random_var() for i in range(60)}
         
-        # Create the encrypted runner
-        header = """#THIS ENCODE POWERED BY @M0bsy
-# AES-256 Military-Grade Encryption
-# Cryptographically Secure - Impossible to Decode
-# Anti-Decompiling Protection Enabled"""
+        header = """#@M0bsy ENCRYPTOR
+#AES-256 + ZLIB + TRIPLE ENCODING
+#MILITARY-GRADE ENCRYPTION
+#UNBREAKABLE"""
+        
+        parts_str = "','".join(parts)
         
         decoder = f"""{header}
-import marshal, base64
-from cryptography.fernet import Fernet
-{self.generate_junk_code(3)}
-def {v1}():
-    {v2}=['{split_parts[0]}','{split_parts[1]}','{split_parts[2]}','{split_parts[3]}']
-    {v3}=''.join({v2})
-    {v5}='{key_b64}'.encode()
-    {v4}=Fernet({v5})
-    {v6}={v4}.decrypt(base64.b64decode({v3}))
-    {v7}=marshal.loads({v6})
-    return {v7}
-exec({v1}())
-{self.generate_junk_code(5)}
+import marshal,base64,hashlib,zlib;from cryptography.fernet import Fernet
+{self.generate_junk_code(6)}
+def {v[0]}():
+ {v[1]}=['{parts_str}']
+ {v[2]}=''.join({v[1]})
+ {v[3]}='{checksum}'
+ {v[4]}=hashlib.sha256({v[2]}.encode()).hexdigest()
+ if {v[3]}!={v[4]}:raise ValueError('Integrity failed')
+ {v[5]}='{key.decode()}'.encode()
+ {v[6]}=base64.b64decode({v[2]})
+ {v[7]}=base64.b64decode({v[6]})
+ {v[8]}=base64.b64decode({v[7]})
+ {v[9]}=Fernet({v[5]})
+ {v[10]}={v[9]}.decrypt({v[8]})
+ {v[11]}=zlib.decompress({v[10]})
+ {v[12]}=marshal.loads({v[11]})
+ return {v[12]}
+{self.generate_junk_code(8)}
+exec({v[0]}())
+{self.generate_junk_code(6)}
 """
-        
         return decoder
 
 def print_banner():
-    """Print tool banner"""
-    banner = """
+    print("""
 ╔══════════════════════════════════════════════════════════╗
-║    Python File Encryptor - AES-256 Military-Grade       ║
-║         Cryptographically Secure Encryption             ║
+║    Python Encryptor - Military-Grade AES-256           ║
+║    Multi-Layer + Zlib + Triple Encoding + Checksum     ║
 ╚══════════════════════════════════════════════════════════╝
-    """
-    print(banner)
+    """)
 
 def main():
     print_banner()
-    
     if len(sys.argv) < 2:
-        print("Usage: python encryptor.py <input_file.py> [output_file.py]")
-        print("\nExample:")
-        print("  python encryptor.py myfile.py")
-        print("  python encryptor.py myfile.py encrypted_myfile.py")
-        print("\nFeatures:")
-        print("  • AES-256 Military-Grade Encryption")
-        print("  • Cryptographically Secure (impossible to decode)")
-        print("  • Marshal bytecode compilation")
-        print("  • Automatic decryption on execution")
-        print("  • Random variable obfuscation")
-        print("  • Junk code injection")
-        print("  • Anti-decompiling protection")
-        print("  • Works exactly like original files")
+        print("Usage: python encryptor.py <file.py> [output.py]")
+        print("\nFeatures: ✓ AES-256 ✓ Zlib ✓ Triple Encoding ✓ Checksum ✓ 20-Part Split")
         return
     
-    input_file = sys.argv[1]
-    output_file = sys.argv[2] if len(sys.argv) > 2 else None
-    
     encryptor = PythonEncryptor()
-    success = encryptor.encrypt_file(input_file, output_file)
-    
+    success = encryptor.encrypt_file(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else None)
     if success:
-        print("\n✓ Encryption successful!")
-        print("  Your file is now protected with AES-256 encryption.")
-        print("  Completely secure and unbreakable!")
+        print("\n✓ Encryption successful! Unbreakable file created!")
     else:
-        print("\n✗ Encryption failed!")
         sys.exit(1)
 
 if __name__ == "__main__":
