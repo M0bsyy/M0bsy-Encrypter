@@ -30,12 +30,12 @@ class EncryptorBot:
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Send welcome message when /start is used"""
         welcome_message = """
-🔐 *Python File Encryptor Bot*
-_Powered by M0bsy_
+🔐 <b>Python File Encryptor Bot</b>
+<i>Powered by M0bsy</i>
 
 Send me any Python file (.py) and I'll encrypt it with 5 layers of advanced obfuscation!
 
-*Features:*
+<b>Features:</b>
 • XOR Encryption with random keys
 • Marshal bytecode compilation
 • Zlib compression
@@ -44,41 +44,41 @@ Send me any Python file (.py) and I'll encrypt it with 5 layers of advanced obfu
 • Junk code injection
 • 7-8x file size increase
 
-*How to use:*
+<b>How to use:</b>
 1. Send me a Python file (.py)
 2. I'll encrypt it instantly
 3. Download the encrypted file
 4. Run it like normal Python!
 
-_The encrypted file works exactly like the original!_
+<i>The encrypted file works exactly like the original!</i>
         """
-        await update.message.reply_text(welcome_message, parse_mode='Markdown')
+        await update.message.reply_text(welcome_message, parse_mode='HTML')
     
     async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Send help message when /help is used"""
         help_message = """
-📚 *How to Use This Bot*
+📚 <b>How to Use This Bot</b>
 
 1️⃣ Send me a Python file (.py extension)
 2️⃣ Wait a few seconds while I encrypt it
 3️⃣ Download the encrypted file I send back
-4️⃣ Run it with: `python encrypted_yourfile.py`
+4️⃣ Run it with: <code>python encrypted_yourfile.py</code>
 
-*Commands:*
+<b>Commands:</b>
 /start - Start the bot
 /help - Show this help message
 /about - About this bot
 
-*Note:* The encrypted file is 7-8x larger but works identically to the original!
+<b>Note:</b> The encrypted file is 7-8x larger but works identically to the original!
         """
-        await update.message.reply_text(help_message, parse_mode='Markdown')
+        await update.message.reply_text(help_message, parse_mode='HTML')
     
     async def about_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Send about message when /about is used"""
         about_message = """
-ℹ️ *About This Bot*
+ℹ️ <b>About This Bot</b>
 
-*Python File Encryptor Bot*
+<b>Python File Encryptor Bot</b>
 Version: 1.0
 Created by: M0bsy
 
@@ -93,9 +93,9 @@ This bot uses advanced 5-layer obfuscation:
 
 The encrypted files are extremely difficult to reverse engineer while remaining fully functional.
 
-_Protect your Python code from casual copying!_
+<i>Protect your Python code from casual copying!</i>
         """
-        await update.message.reply_text(about_message, parse_mode='Markdown')
+        await update.message.reply_text(about_message, parse_mode='HTML')
     
     async def handle_document(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle incoming documents (Python files)"""
