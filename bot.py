@@ -1,173 +1,269 @@
 #!/usr/bin/env python3
 """
-Python File Encryptor - Advanced Multi-Layer Obfuscation Tool
-This tool encrypts Python files using multiple layers of advanced obfuscation
-while keeping them executable.
+Telegram Bot - Python File Encryptor
+Automatically encrypts Python files sent to the bot
+Powered by M0bsy
 """
 
-import marshal
-import base64
-import zlib
 import os
 import sys
-import random
-import string
-import keyword
+import tempfile
+import logging
+from telegram import Update
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
-class PythonEncryptor:
-    def __init__(self):
-        self.encryption_layers = 3
-        self.python_keywords = set(keyword.kwlist)
+# Import the encryptor
+from encryptor import PythonEncryptor
+
+# Enable logging
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
+
+class EncryptorBot:
+    def __init__(self, token):
+        self.token = token
+        self.encryptor = PythonEncryptor()
         
-    def generate_random_var(self, length=None):
-        """Generate random variable names for obfuscation, avoiding Python keywords"""
-        if length is None:
-            length = random.randint(8, 16)
-        
-        while True:
-            first_char = random.choice(string.ascii_letters + '_')
-            rest_chars = ''.join(random.choice(string.ascii_letters + string.digits + '_') for _ in range(length - 1))
-            var_name = first_char + rest_chars
-            
-            if var_name not in self.python_keywords and not var_name[0].isdigit():
-                return var_name
-    
-    def generate_junk_code(self):
-        """Generate junk code to confuse reverse engineers"""
-        junk_templates = [
-            f"{self.generate_random_var()} = {random.randint(1000, 9999)}",
-            f"{self.generate_random_var()} = '{self.generate_random_var()}'",
-            f"{self.generate_random_var()} = lambda x: x * {random.randint(1, 10)}",
-            f"_ = {random.randint(100, 999)} + {random.randint(100, 999)}",
-        ]
-        return '\n'.join(random.sample(junk_templates, random.randint(2, 4)))
-    
-    def encrypt_file(self, input_file, output_file=None):
+    async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Send welcome message when /start is used"""
+        welcome_message = """
+╔════════════════════════════════════════╗
+║  🔐 PYTHON FILE ENCRYPTOR BOT 🔐       ║
+║    Powered by M0bsy                    ║
+║   Cython-Like Security                 ║
+╚════════════════════════════════════════╝
+
+Send me any Python file (.py) and I'll encrypt it with Cython-like 7-layer obfuscation!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✨ FEATURES:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⚙️  Marshal bytecode compilation
+  📦 Zlib compression (level 9)
+  🔑 XOR encryption with random keys
+  🔀 Multi-layer encoding (Base64 + Hex + Reverse)
+  📐 Code flattening & anti-decompiling
+  🎲 Random padding & junk code
+  📈 10-15x file size increase
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 HOW TO USE:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  1️⃣  Send me a Python file (.py)
+  2️⃣  I'll encrypt it instantly
+  3️⃣  Download the encrypted file
+  4️⃣  Run it like normal Python!
+
+✅ The encrypted file works exactly like the original!
         """
-        Encrypt a Python file with multi-layer obfuscation
+        await update.message.reply_text(welcome_message)
+    
+    async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Send help message when /help is used"""
+        help_message = """
+╔════════════════════════════════════════╗
+║       📚 HOW TO USE THIS BOT 📚         ║
+╚════════════════════════════════════════╝
+
+1️⃣  Send me a Python file (.py extension)
+2️⃣  Wait a few seconds while I encrypt it
+3️⃣  Download the encrypted file I send back
+4️⃣  Run it with: python encrypted_yourfile.py
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⌨️  COMMANDS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  /start  →  Start the bot
+  /help   →  Show this help message
+  /about  →  About this bot
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💬 NOTE: The encrypted file is 10-15x larger with
+Cython-like security! Works identically to the original!
         """
-        if not os.path.exists(input_file):
-            print(f"Error: File '{input_file}' not found!")
-            return False
+        await update.message.reply_text(help_message)
+    
+    async def about_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Send about message when /about is used"""
+        about_message = """
+╔════════════════════════════════════════╗
+║         ℹ️  ABOUT THIS BOT ℹ️           ║
+╚════════════════════════════════════════╝
+
+📌 Python File Encryptor Bot
+   Version: 1.0
+   Created by: M0bsy
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔐 CYTHON-LIKE 7-LAYER EXTREME OBFUSCATION:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ✓ Marshal bytecode + Zlib compression
+  ✓ XOR encryption with 32-byte random keys
+  ✓ Multi-layer encoding: Base64 + Hex + Reverse
+  ✓ Code flattening & anti-decompiling protection
+  ✓ Random padding & string encryption
+  ✓ Complex junk code injection (density-based)
+  ✓ Split data execution with flattening
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The encrypted files are extremely difficult to reverse
+engineer while remaining fully functional.
+
+🛡️  Protect your Python code from casual copying!
+        """
+        await update.message.reply_text(about_message)
+    
+    async def handle_document(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Handle incoming documents (Python files)"""
+        document = update.message.document
         
-        if output_file is None:
-            base_name = os.path.basename(input_file)
-            output_file = f"encrypted_{base_name}"
+        # Check if it's a Python file
+        if not document.file_name.endswith('.py'):
+            await update.message.reply_text(
+                "❌ Please send a Python file (.py extension only)!"
+            )
+            return
         
         try:
-            with open(input_file, 'r', encoding='utf-8') as f:
-                source_code = f.read()
+            # Send processing message
+            processing_msg = await update.message.reply_text(
+                "🔐 Encrypting your Python file...\nPlease wait..."
+            )
             
-            print(f"[+] Reading file: {input_file}")
-            print(f"[+] Original size: {len(source_code)} bytes")
-            print(f"[+] Applying {self.encryption_layers} layers of encryption...")
+            # Download the file
+            file = await document.get_file()
             
-            encrypted_code = self._apply_encryption(source_code)
-            
-            with open(output_file, 'w', encoding='utf-8') as f:
-                f.write(encrypted_code)
-            
-            print(f"[+] Encryption complete!")
-            print(f"[+] Encrypted file saved as: {output_file}")
-            print(f"[+] Encrypted size: {len(encrypted_code)} bytes")
-            print(f"[+] Obfuscation ratio: {len(encrypted_code)/len(source_code):.2f}x")
-            
-            return True
-            
-        except Exception as e:
-            print(f"Error during encryption: {e}")
-            return False
-    
-    def _apply_encryption(self, source_code):
-        """Apply multiple layers of advanced encryption"""
-        
-        # LAYER 1: Compile and marshal
-        compiled_code = compile(source_code, '<string>', 'exec')
-        marshaled = marshal.dumps(compiled_code)
-        
-        # LAYER 2: Zlib compression (level 9)
-        compressed = zlib.compress(marshaled, 9)
-        
-        # LAYER 3: Base64 encoding
-        encoded = base64.b64encode(compressed).decode('ascii')
-        
-        # Generate random variable names
-        v1 = self.generate_random_var()
-        v2 = self.generate_random_var()
-        v3 = self.generate_random_var()
-        v4 = self.generate_random_var()
-        
-        # Generate junk code
-        junk1 = self.generate_junk_code()
-        junk2 = self.generate_junk_code()
-        
-        # Create branded header
-        header = """#THIS ENCODE POWERED BY @M0bsy
-# Multi-Layer Encryption System
-# Encrypted with 3-Layer Advanced Obfuscation"""
-        
-        # Split data into 3 parts for additional obfuscation
-        part_size = len(encoded) // 3
-        part1 = encoded[:part_size]
-        part2 = encoded[part_size:2*part_size]
-        part3 = encoded[2*part_size:]
-        
-        # Create final obfuscated code
-        final_code = f"""{header}
-import base64, marshal, zlib
-{junk1}
-{v1} = '{part1}'
-{v2} = '{part2}'
-{v3} = '{part3}'
-{junk2}
-{v4} = base64.b64decode(({v1}+{v2}+{v3}).encode())
-exec(marshal.loads(zlib.decompress({v4})))
-"""
-        
-        return final_code
+            # Create temporary directory for processing
+            with tempfile.TemporaryDirectory() as temp_dir:
+                input_path = os.path.join(temp_dir, document.file_name)
+                output_filename = f"encrypted_{document.file_name}"
+                output_path = os.path.join(temp_dir, output_filename)
+                
+                # Download file to temp directory
+                await file.download_to_drive(input_path)
+                
+                # Encrypt the file
+                success = self.encryptor.encrypt_file(input_path, output_path)
+                
+                if not success:
+                    await processing_msg.edit_text(
+                        "❌ Encryption failed! Make sure the file is valid Python code."
+                    )
+                    return
+                
+                # Get file sizes
+                original_size = os.path.getsize(input_path)
+                encrypted_size = os.path.getsize(output_path)
+                ratio = encrypted_size / original_size
+                
+                # Send the encrypted file back
+                caption = f"""╔════════════════════════════════════════╗
+║   ✅ ENCRYPTION COMPLETE! ✅            ║
+╚════════════════════════════════════════╝
 
-def print_banner():
-    """Print tool banner"""
-    banner = """
-╔═══════════════════════════════════════════════════════╗
-║     Python File Encryptor - Advanced Multi-Layer      ║
-║         Ultra-Secure Code Obfuscation System          ║
-╚═══════════════════════════════════════════════════════╝
-    """
-    print(banner)
+📁 Original File:  {document.file_name}
+📁 Encrypted File: {output_filename}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 STATISTICS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Original size:    {original_size:,} bytes
+  Encrypted size:   {encrypted_size:,} bytes
+  Obfuscation ratio: {ratio:.2f}x
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔐 SECURITY APPLIED:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ✓ 7 layers of Cython-like encryption
+  ✓ Marshal + Zlib + XOR + Base64 + Hex + Reverse + Flatten
+  ✓ Random padding & string encryption
+  ✓ Code flattening & anti-decompiling
+  ✓ Junk code injection with complexity
+  ✓ Impossible to reverse engineer!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+▶️  RUN WITH: python {output_filename}
+
+🔥 Powered by M0bsy
+"""
+                
+                # Send the encrypted file
+                with open(output_path, 'rb') as encrypted_file:
+                    await update.message.reply_document(
+                        document=encrypted_file,
+                        filename=output_filename,
+                        caption=caption
+                    )
+                
+                # Delete processing message
+                await processing_msg.delete()
+                
+                logger.info(f"Successfully encrypted {document.file_name} for user {update.effective_user.id}")
+                
+        except Exception as e:
+            logger.error(f"Error processing file: {e}")
+            await update.message.reply_text(
+                f"❌ An error occurred while encrypting your file:\n\n{str(e)}"
+            )
+    
+    async def handle_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Handle regular text messages"""
+        await update.message.reply_text(
+            "📎 Please send me a Python file (.py) to encrypt!\n\n"
+            "Use /help to see how to use this bot."
+        )
+    
+    def run(self):
+        """Start the bot"""
+        # Create the Application
+        application = Application.builder().token(self.token).build()
+        
+        # Add command handlers
+        application.add_handler(CommandHandler("start", self.start_command))
+        application.add_handler(CommandHandler("help", self.help_command))
+        application.add_handler(CommandHandler("about", self.about_command))
+        
+        # Add document handler for Python files
+        application.add_handler(MessageHandler(filters.Document.ALL, self.handle_document))
+        
+        # Add text message handler
+        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_text))
+        
+        # Start the bot
+        logger.info("🤖 Bot started successfully! Waiting for messages...")
+        print("╔═══════════════════════════════════════════════════════╗")
+        print("║     Python Encryptor Bot - Running Successfully      ║")
+        print("║              Powered by M0bsy                         ║")
+        print("╚═══════════════════════════════════════════════════════╝")
+        print("\n✅ Bot is online and ready to encrypt Python files!")
+        print("📱 Send Python files to your bot on Telegram")
+        print("\nPress Ctrl+C to stop the bot\n")
+        
+        # Run the bot until the user presses Ctrl-C
+        application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 def main():
-    print_banner()
+    # Get bot token from environment variable
+    bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
     
-    if len(sys.argv) < 2:
-        print("Usage: python encryptor.py <input_file.py> [output_file.py]")
-        print("\nExample:")
-        print("  python encryptor.py myfile.py")
-        print("  python encryptor.py myfile.py encrypted_myfile.py")
-        print("\nFeatures:")
-        print("  • 3 layers of advanced obfuscation")
-        print("  • Marshal bytecode compilation")
-        print("  • Zlib compression (maximum level)")
-        print("  • Base64 encoding")
-        print("  • Random variable name obfuscation")
-        print("  • Junk code injection")
-        print("  • Split data execution")
-        return
-    
-    input_file = sys.argv[1]
-    output_file = sys.argv[2] if len(sys.argv) > 2 else None
-    
-    encryptor = PythonEncryptor()
-    success = encryptor.encrypt_file(input_file, output_file)
-    
-    if success:
-        print("\n✓ Encryption successful!")
-        print("  Your file is now protected with advanced multi-layer encryption.")
-        print("  Run it like any normal Python file.")
-        print("  Extremely difficult to reverse engineer!")
-    else:
-        print("\n✗ Encryption failed!")
+    if not bot_token:
+        print("❌ ERROR: TELEGRAM_BOT_TOKEN not found!")
+        print("\nPlease set your Telegram Bot Token:")
+        print("1. Create a bot with @BotFather on Telegram")
+        print("2. Get your bot token")
+        print("3. Set it as environment variable: TELEGRAM_BOT_TOKEN")
+        print("\nIn Termux:")
+        print("  export TELEGRAM_BOT_TOKEN='your-token-here'")
+        print("  python bot.py")
         sys.exit(1)
+    
+    # Create and run the bot
+    bot = EncryptorBot(bot_token)
+    bot.run()
 
 if __name__ == "__main__":
     main()
