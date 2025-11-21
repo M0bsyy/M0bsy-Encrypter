@@ -128,13 +128,15 @@ def {v[0]}():
  if {v[3]}!={v[4]}:raise ValueError('Integrity failed')
  {v[5]}='{key.decode()}'.encode()
  {v[6]}=base64.b64decode({v[2]})
- {v[7]}=base64.b64decode({v[6]})
+ {v[7]}={v[6]}.decode('utf-8')
  {v[8]}=base64.b64decode({v[7]})
- {v[9]}=Fernet({v[5]})
- {v[10]}={v[9]}.decrypt({v[8]})
- {v[11]}=zlib.decompress({v[10]})
- {v[12]}=marshal.loads({v[11]})
- return {v[12]}
+ {v[9]}={v[8]}.decode('utf-8')
+ {v[10]}=base64.b64decode({v[9]})
+ {v[11]}=Fernet({v[5]})
+ {v[12]}={v[11]}.decrypt({v[10]})
+ {v[13]}=zlib.decompress({v[12]})
+ {v[14]}=marshal.loads({v[13]})
+ return {v[14]}
 {self.generate_junk_code(8)}
 exec({v[0]}())
 {self.generate_junk_code(6)}
