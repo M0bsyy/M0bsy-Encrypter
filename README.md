@@ -56,3 +56,18 @@ The easiest way to encrypt files on the go! Just send Python files to your Teleg
    
    # Start the bot
    python bot.py
+
+# COMMANDS TO RUN IN TERMUX
+git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME
+cd YOUR_REPO_NAME
+
+# Install dependencies
+bash install.sh
+
+# Set bot token (ONE TIME before running)
+export TELEGRAM_BOT_TOKEN='your-token-from-botfather'
+
+# Run the bot
+python3 bot.py
+
+# Now the bot is active on Telegram! Send it files to encrypt 🔐
