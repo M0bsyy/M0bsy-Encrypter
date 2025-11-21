@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Telegram Bot - Python File Encryptor
-Automatically encrypts Python files sent to the bot with AES-256
+Military-Grade AES-256 Encryption
 Powered by M0bsy
 """
 
@@ -11,15 +11,9 @@ import tempfile
 import logging
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-
-# Import the encryptor
 from encryptor import PythonEncryptor
 
-# Enable logging
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class EncryptorBot:
@@ -28,26 +22,25 @@ class EncryptorBot:
         self.encryptor = PythonEncryptor()
         
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Send welcome message when /start is used"""
-        welcome_message = """
+        msg = """
 ╔════════════════════════════════════════╗
 ║  🔐 PYTHON FILE ENCRYPTOR BOT 🔐       ║
 ║    Powered by M0bsy                    ║
-║   AES-256 Military-Grade Security      ║
+║   Military-Grade AES-256 Security      ║
 ╚════════════════════════════════════════╝
 
-Send me any Python file (.py) and I'll encrypt it with unbreakable AES-256 encryption!
+Send me any Python file (.py) and I'll encrypt it with unbreakable military-grade encryption!
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✨ FEATURES:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   🔐 AES-256 Military-Grade Encryption
-  🛡️  Cryptographically Secure (Impossible to Decode)
-  📦 Marshal bytecode compilation
-  🔀 Fernet encryption with automatic key management
-  📐 Code flattening & anti-decompiling
-  🎲 Random padding & junk code
-  📈 4-8x file size increase
+  📦 Zlib Compression (Level 9)
+  🔀 Triple Base64 Encoding
+  ✓ SHA256 Integrity Verification
+  🎲 20-Part Data Splitting
+  📐 Anti-Decompiling Protection
+  🛡️  Multi-Layer Obfuscation
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 💡 HOW TO USE:
@@ -59,11 +52,10 @@ Send me any Python file (.py) and I'll encrypt it with unbreakable AES-256 encry
 
 ✅ The encrypted file works exactly like the original!
         """
-        await update.message.reply_text(welcome_message)
+        await update.message.reply_text(msg)
     
     async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Send help message when /help is used"""
-        help_message = """
+        msg = """
 ╔════════════════════════════════════════╗
 ║       📚 HOW TO USE THIS BOT 📚         ║
 ╚════════════════════════════════════════╝
@@ -81,190 +73,135 @@ Send me any Python file (.py) and I'll encrypt it with unbreakable AES-256 encry
   /about  →  About this bot
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💬 NOTE: The encrypted file is secure and unbreakable!
-Works identically to the original!
+💬 Secure, unbreakable encryption!
         """
-        await update.message.reply_text(help_message)
+        await update.message.reply_text(msg)
     
     async def about_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Send about message when /about is used"""
-        about_message = """
+        msg = """
 ╔════════════════════════════════════════╗
 ║         ℹ️  ABOUT THIS BOT ℹ️           ║
 ╚════════════════════════════════════════╝
 
 📌 Python File Encryptor Bot
-   Version: 2.0 (AES-256 Upgrade)
+   Version: 3.0 (Military-Grade)
    Created by: M0bsy
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔐 AES-256 MILITARY-GRADE ENCRYPTION:
+🔐 MILITARY-GRADE ENCRYPTION:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  ✓ Cryptographically Secure Encryption
-  ✓ 256-bit Key Length (Military-Grade)
-  ✓ Fernet Implementation (Modern Standards)
-  ✓ Impossible to Decode without Key
-  ✓ Marshal bytecode + Encryption
-  ✓ Automatic Key Management
-  ✓ Code flattening & anti-decompiling
-  ✓ Junk code injection
+  ✓ AES-256 Fernet Encryption
+  ✓ Zlib Compression (Level 9)
+  ✓ Triple Base64 Multi-Encoding
+  ✓ SHA256 Integrity Checksum
+  ✓ 20-Part Data Splitting
+  ✓ Extreme Anti-Decompiling
+  ✓ Impossible to decode!
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-The encrypted files are IMPOSSIBLE to reverse
-engineer while remaining fully functional.
+Files are IMPOSSIBLE to reverse engineer
+while remaining fully functional!
 
-🛡️  Protect your Python code - Military-Grade Security!
+🛡️  Protect your Python code!
         """
-        await update.message.reply_text(about_message)
+        await update.message.reply_text(msg)
     
     async def handle_document(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handle incoming documents (Python files)"""
-        document = update.message.document
-        
-        # Check if it's a Python file
-        if not document.file_name.endswith('.py'):
-            await update.message.reply_text(
-                "❌ Please send a Python file (.py extension only)!"
-            )
+        doc = update.message.document
+        if not doc.file_name.endswith('.py'):
+            await update.message.reply_text("❌ Please send a Python file (.py)!")
             return
         
         try:
-            # Send processing message
-            processing_msg = await update.message.reply_text(
-                "🔐 Encrypting your Python file with AES-256...\nPlease wait..."
-            )
+            proc_msg = await update.message.reply_text("🔐 Encrypting with AES-256...\nPlease wait...")
+            file = await doc.get_file()
             
-            # Download the file
-            file = await document.get_file()
-            
-            # Create temporary directory for processing
             with tempfile.TemporaryDirectory() as temp_dir:
-                input_path = os.path.join(temp_dir, document.file_name)
-                output_filename = f"encrypted_{document.file_name}"
-                output_path = os.path.join(temp_dir, output_filename)
+                in_path = os.path.join(temp_dir, doc.file_name)
+                out_file = f"encrypted_{doc.file_name}"
+                out_path = os.path.join(temp_dir, out_file)
                 
-                # Download file to temp directory
-                await file.download_to_drive(input_path)
-                
-                # Encrypt the file
-                success = self.encryptor.encrypt_file(input_path, output_path)
+                await file.download_to_drive(in_path)
+                success = self.encryptor.encrypt_file(in_path, out_path)
                 
                 if not success:
-                    await processing_msg.edit_text(
-                        "❌ Encryption failed! Make sure the file is valid Python code."
-                    )
+                    await proc_msg.edit_text("❌ Encryption failed!")
                     return
                 
-                # Get file sizes
-                original_size = os.path.getsize(input_path)
-                encrypted_size = os.path.getsize(output_path)
-                ratio = encrypted_size / original_size
+                orig_sz = os.path.getsize(in_path)
+                enc_sz = os.path.getsize(out_path)
+                ratio = enc_sz / orig_sz
                 
-                # Send the encrypted file back
                 caption = f"""╔════════════════════════════════════════╗
 ║   ✅ ENCRYPTION COMPLETE! ✅            ║
 ╚════════════════════════════════════════╝
 
-📁 Original File:  {document.file_name}
-📁 Encrypted File: {output_filename}
+📁 Original File:  {doc.file_name}
+📁 Encrypted File: {out_file}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📊 STATISTICS:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  Original size:    {original_size:,} bytes
-  Encrypted size:   {encrypted_size:,} bytes
+  Original size:    {orig_sz:,} bytes
+  Encrypted size:   {enc_sz:,} bytes
   Obfuscation ratio: {ratio:.2f}x
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔐 SECURITY APPLIED:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  ✓ AES-256 Military-Grade Encryption
-  ✓ Cryptographically Secure
-  ✓ Marshal + Fernet Encryption
-  ✓ Automatic Key Management
-  ✓ Code flattening & anti-decompiling
-  ✓ Junk code injection
+  ✓ AES-256 Encryption
+  ✓ Zlib Compression
+  ✓ Triple Base64 Encoding
+  ✓ SHA256 Checksum
+  ✓ 20-Part Splitting
+  ✓ Anti-Decompiling
   ✓ IMPOSSIBLE to decode!
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-▶️  RUN WITH: python {output_filename}
+▶️  RUN WITH: python {out_file}
 
 🔥 Powered by M0bsy
 """
                 
-                # Send the encrypted file
-                with open(output_path, 'rb') as encrypted_file:
-                    await update.message.reply_document(
-                        document=encrypted_file,
-                        filename=output_filename,
-                        caption=caption
-                    )
+                with open(out_path, 'rb') as f:
+                    await update.message.reply_document(document=f, filename=out_file, caption=caption)
                 
-                # Delete processing message
-                await processing_msg.delete()
-                
-                logger.info(f"Successfully encrypted {document.file_name} for user {update.effective_user.id}")
+                await proc_msg.delete()
+                logger.info(f"Encrypted {doc.file_name}")
                 
         except Exception as e:
-            logger.error(f"Error processing file: {e}")
-            await update.message.reply_text(
-                f"❌ An error occurred while encrypting your file:\n\n{str(e)}"
-            )
+            logger.error(f"Error: {e}")
+            await update.message.reply_text(f"❌ Error: {str(e)}")
     
     async def handle_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handle regular text messages"""
-        await update.message.reply_text(
-            "📎 Please send me a Python file (.py) to encrypt!\n\n"
-            "Use /help to see how to use this bot."
-        )
+        await update.message.reply_text("📎 Send me a Python file (.py) to encrypt!\n\nUse /help for more info.")
     
     def run(self):
-        """Start the bot"""
-        # Create the Application
-        application = Application.builder().token(self.token).build()
+        app = Application.builder().token(self.token).build()
+        app.add_handler(CommandHandler("start", self.start_command))
+        app.add_handler(CommandHandler("help", self.help_command))
+        app.add_handler(CommandHandler("about", self.about_command))
+        app.add_handler(MessageHandler(filters.Document.ALL, self.handle_document))
+        app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_text))
         
-        # Add command handlers
-        application.add_handler(CommandHandler("start", self.start_command))
-        application.add_handler(CommandHandler("help", self.help_command))
-        application.add_handler(CommandHandler("about", self.about_command))
-        
-        # Add document handler for Python files
-        application.add_handler(MessageHandler(filters.Document.ALL, self.handle_document))
-        
-        # Add text message handler
-        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_text))
-        
-        # Start the bot
-        logger.info("🤖 Bot started successfully! Waiting for messages...")
         print("╔═══════════════════════════════════════════════════════╗")
         print("║     Python Encryptor Bot - Running Successfully      ║")
         print("║              Powered by M0bsy                         ║")
         print("╚═══════════════════════════════════════════════════════╝")
-        print("\n✅ Bot is online and ready to encrypt Python files!")
-        print("📱 Send Python files to your bot on Telegram")
-        print("\nPress Ctrl+C to stop the bot\n")
+        print("\n✅ Bot is online and ready!")
+        print("📱 Send Python files to your bot")
+        print("Press Ctrl+C to stop\n")
         
-        # Run the bot until the user presses Ctrl-C
-        application.run_polling(allowed_updates=Update.ALL_TYPES)
+        app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 def main():
-    # Get bot token from environment variable
-    bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
-    
-    if not bot_token:
-        print("❌ ERROR: TELEGRAM_BOT_TOKEN not found!")
-        print("\nPlease set your Telegram Bot Token:")
-        print("1. Create a bot with @BotFather on Telegram")
-        print("2. Get your bot token")
-        print("3. Set it as environment variable: TELEGRAM_BOT_TOKEN")
-        print("\nIn Termux:")
-        print("  export TELEGRAM_BOT_TOKEN='your-token-here'")
-        print("  python bot.py")
+    token = os.getenv('TELEGRAM_BOT_TOKEN')
+    if not token:
+        print("❌ ERROR: TELEGRAM_BOT_TOKEN not set!")
+        print("\nSet it with: export TELEGRAM_BOT_TOKEN='your-token'")
         sys.exit(1)
-    
-    # Create and run the bot
-    bot = EncryptorBot(bot_token)
+    bot = EncryptorBot(token)
     bot.run()
 
 if __name__ == "__main__":
